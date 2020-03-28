@@ -27,6 +27,7 @@ class VizdoomEnv(gym.Env):
         scenarios_dir = os.path.join(os.path.dirname(__file__), 'scenarios')
         self.game.load_config(os.path.join(scenarios_dir, CONFIGS[level][0]))
         self.game.set_window_visible(False)
+        self.game.set_automap_buffer_enabled(True)
         self.game.init()
         self.state = None
 
@@ -64,7 +65,11 @@ class VizdoomEnv(gym.Env):
 
     def render(self, mode='human'):
         try:
-            img = self.game.get_state().screen_buffer
+            s = self.game.get_state()
+            img = s.screen_buffer
+            if mode == 'automap':
+                img_2 = s.automap_buffer
+                img = np.concatenate((img, img_2), 1)
             img = np.transpose(img, [1, 2, 0])
 
             if self.viewer is None:
